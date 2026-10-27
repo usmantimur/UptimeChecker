@@ -1,0 +1,34 @@
+// checker service: manager stores targets, worker sends reports.
+
+syntax = "proto3";
+
+package checker;
+
+option go_package = "uptime-checker/internal/pb;pb";
+
+message Target {
+  string id       = 1;
+  string url      = 2;
+  int32  interval = 3; // seconds
+}
+
+message Report {
+  string target_id   = 1;
+  string url         = 2;
+  bool   is_up       = 3;
+  int32  status_code = 4; // 0 if request failed
+  int64  latency_ms  = 5;
+  string error       = 6;
+  int64  checked_at  = 7; // unix seconds
+}
+
+message GetTargetsRequest  {}
+message GetTargetsResponse { repeated Target targets = 1; }
+
+message SaveReportRequest  { Report report = 1; }
+message SaveReportResponse { bool ok = 1; }
+
+service Checker {
+  rpc GetTargets (GetTargetsRequest) returns (GetTargetsResponse);
+  rpc SaveReport (SaveReportRequest) returns (SaveReportResponse);
+}
